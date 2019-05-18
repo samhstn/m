@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/samhstn/m.svg?branch=master)](https://travis-ci.org/samhstn/m)
+
 # m
 
 A zsh command line utility when using your terminal and `vim` as your ide.

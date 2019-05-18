@@ -2,15 +2,15 @@
 
 function mg() {
   if [[ $1 = '-c' ]];then
-    git grep --recursive --untracked $2 |
+    git grep --untracked $2 |
     grep -Ev '.{200}' |
     grep $2
   elif [[ $1 =~ [A-Z] ]];then
-    git grep --recursive --untracked $1 |
+    git grep --untracked $1 |
     grep -Ev '.{200}' |
     grep $1
   else
-    git grep --recursive --untracked --ignore-case $1 |
+    git grep --untracked --ignore-case $1 |
     grep -Ev '.{200}' |
     grep --ignore-case $1
   fi
