@@ -20,14 +20,11 @@ A command similar to the `grep -R <pattern> .` command
 # case insensitive search of `pattern`
 mg pattern
 
-# when capitilized performs a case sensitive search of `String`
+# when capitilized performs a case sensitive search of `Pattern`
 mg Pattern
 
 # the -c flag will always be case sensitive
 mg -c pattern
-
-# the -i flag will always be case insensitive
-mg -i pattern
 
 # the -n flag will surpress numbers
 mg -n pattern

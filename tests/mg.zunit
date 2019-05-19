@@ -17,22 +17,22 @@
 
   run mg hello
 
-  assert $state equals 1
+  assert $state equals 0
   assert "$output" is_empty
 
   run mg two
 
   assert $state equals 0
   assert "${#lines}" equals 1
-  assert "$output" same_as "numbers.txt:two"
+  assert "$output" same_as "numbers.txt$(cyan :)$(red two)"
 
   run mg teen
 
   assert $state equals 0
   assert "${#lines}" equals 3
-  assert "numbers.txt:thirteen" in "$output"
-  assert "numbers.txt:fourteen" in "$output"
-  assert "numbers.txt:fifteen" in "$output"
+  assert "numbers.txt$(cyan :)thir$(red teen)" in "$output"
+  assert "numbers.txt$(cyan :)four$(red teen)" in "$output"
+  assert "numbers.txt$(cyan :)fif$(red teen)" in "$output"
 }
 
 @test 'mg - nested deeply files' {
@@ -42,8 +42,8 @@
 
   assert $state equals 0
   assert "${#lines}" equals 2
-  assert "dir1/dir2/dir3/hello.txt:dir3hello" in "$output"
-  assert "dir1/hello.txt:dir1hello" in "$output"
+  assert "dir1/dir2/dir3/hello.txt$(cyan :)dir3$(red hello)" in "$output"
+  assert "dir1/hello.txt$(cyan :)dir1$(red hello)" in "$output"
 }
 
 @test 'mg - gitignored dirs' {
@@ -53,7 +53,7 @@
 
   assert $state equals 0
   assert "${#lines}" equals 1
-  assert "$output" same_as "not_ignored/not_ignored.txt:hello not ignored"
+  assert "$output" same_as "not_ignored/not_ignored.txt$(cyan :)$(red hello) not ignored"
 }
 
 @test 'mg - very long lines are filtered' {
@@ -63,8 +63,8 @@
 
   assert $state equals 0
   assert "${#lines}" equals 2
-  assert "numbers.txt:one" in "$output"
-  assert "$output" matches 'long_lines.txt:\.{100}one'
+  assert "numbers.txt$(cyan :)$(red one)" in "$output"
+  assert "$output" matches 'long_lines.txt.*:.*\.{100}.*one.*'
 }
 
 @test 'mg - case insensitive' {
@@ -74,13 +74,13 @@
 
   assert $state equals 0
   assert "${#lines}" equals 7
-  assert "numbers.txt:three" in "$output"
-  assert "cases.txt:three" in "$output"
-  assert "cases.txt:Three" in "$output"
-  assert "cases.txt:tHree" in "$output"
-  assert "cases.txt:thRee" in "$output"
-  assert "cases.txt:thrEe" in "$output"
-  assert "cases.txt:threE" in "$output"
+  assert "numbers.txt$(cyan :)$(red three)" in "$output"
+  assert "cases.txt$(cyan :)$(red three)" in "$output"
+  assert "cases.txt$(cyan :)$(red Three)" in "$output"
+  assert "cases.txt$(cyan :)$(red tHree)" in "$output"
+  assert "cases.txt$(cyan :)$(red thRee)" in "$output"
+  assert "cases.txt$(cyan :)$(red thrEe)" in "$output"
+  assert "cases.txt$(cyan :)$(red threE)" in "$output"
 }
 
 @test 'mg - smartcase' {
@@ -90,16 +90,16 @@
 
   assert $state equals 0
   assert "${#lines}" equals 1
-  assert "cases.txt:Three" in "$output"
+  assert "cases.txt$(cyan :)$(red Three)" in "$output"
 }
 
-@test 'mg - -c case sensitive flag' {
+@test 'mg -c - case sensitive flag' {
   cd fixtures/basic
   
   run mg -c three
 
   assert $state equals 0
   assert "${#lines}" equals 2
-  assert "cases.txt:three" in "$output"
-  assert "numbers.txt:three" in "$output"
+  assert "cases.txt$(cyan :)$(red three)" in "$output"
+  assert "numbers.txt$(cyan :)$(red three)" in "$output"
 }

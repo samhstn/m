@@ -2,15 +2,13 @@
 
 function mg() {
   ARGS=(--untracked --color)
+  case_sensitive=''
 
   case $1 in
-    -i) case_sensitive=false
     -c) case_sensitive=true;shift;;
   esac
 
-  if [[ $1 = '-c' ]];then
-    ARGS+=(-E -e $2 --and --not -e '.{200}')
-  elif [[ $1 =~ [A-Z] ]];then
+  if [[ $1 =~ [A-Z] ]] || [[ $case_sensitive = true ]];then
     ARGS+=(-E -e $1 --and --not -e '.{200}')
   else
     ARGS+=(--ignore-case -E -e $1 --and --not -e '.{200}')
