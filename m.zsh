@@ -1,19 +1,22 @@
 #!/bin/zsh
 
 function mg() {
+  ARGS=(--untracked --color)
+
+  case $1 in
+    -i) case_sensitive=false
+    -c) case_sensitive=true;shift;;
+  esac
+
   if [[ $1 = '-c' ]];then
-    git grep --untracked $2 |
-    grep -Ev '.{200}' |
-    grep $2
+    ARGS+=(-E -e $2 --and --not -e '.{200}')
   elif [[ $1 =~ [A-Z] ]];then
-    git grep --untracked $1 |
-    grep -Ev '.{200}' |
-    grep $1
+    ARGS+=(-E -e $1 --and --not -e '.{200}')
   else
-    git grep --untracked --ignore-case $1 |
-    grep -Ev '.{200}' |
-    grep --ignore-case $1
+    ARGS+=(--ignore-case -E -e $1 --and --not -e '.{200}')
   fi
+
+  git grep $ARGS | cat
 }
 
 
