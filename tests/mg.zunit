@@ -9,7 +9,25 @@
 
 @teardown {
   cd $ROOT_DIR
-  rm .gitignore
+  if [ -f .gitignore ];then
+    rm .gitignore
+  fi
+}
+
+@test 'mg - no args: shows usage' {
+  run mg
+
+  assert $state equals 0
+  assert "$output" contains "usage"
+  assert "${#lines}" equals 5
+}
+
+@test 'mg - invalid flag: shows usage' {
+  run mg -z asdf
+
+  assert $state equals 1
+  assert "$output" contains "usage"
+  assert "${#lines}" equals 5
 }
 
 @test 'mg - basic strings with single file' {
@@ -24,15 +42,15 @@
 
   assert $state equals 0
   assert "${#lines}" equals 1
-  assert "$output" same_as "numbers.txt$(cyan :)$(red two)"
+  assert "$output" same_as "     1	numbers.txt$(cyan :)$(red two)"
 
   run mg teen
 
   assert $state equals 0
   assert "${#lines}" equals 3
-  assert "numbers.txt$(cyan :)thir$(red teen)" in "$output"
-  assert "numbers.txt$(cyan :)four$(red teen)" in "$output"
-  assert "numbers.txt$(cyan :)fif$(red teen)" in "$output"
+  assert "     1	numbers.txt$(cyan :)thir$(red teen)" in "$output"
+  assert "     2	numbers.txt$(cyan :)four$(red teen)" in "$output"
+  assert "     3	numbers.txt$(cyan :)fif$(red teen)" in "$output"
 }
 
 @test 'mg - nested deeply files' {
@@ -42,8 +60,8 @@
 
   assert $state equals 0
   assert "${#lines}" equals 2
-  assert "dir1/dir2/dir3/hello.txt$(cyan :)dir3$(red hello)" in "$output"
-  assert "dir1/hello.txt$(cyan :)dir1$(red hello)" in "$output"
+  assert "     1	dir1/dir2/dir3/hello.txt$(cyan :)dir3$(red hello)" in "$output"
+  assert "     2	dir1/hello.txt$(cyan :)dir1$(red hello)" in "$output"
 }
 
 @test 'mg - gitignored dirs' {
@@ -53,7 +71,7 @@
 
   assert $state equals 0
   assert "${#lines}" equals 1
-  assert "$output" same_as "not_ignored/not_ignored.txt$(cyan :)$(red hello) not ignored"
+  assert "$output" same_as "     1	not_ignored/not_ignored.txt$(cyan :)$(red hello) not ignored"
 }
 
 @test 'mg - very long lines are filtered' {
@@ -63,8 +81,8 @@
 
   assert $state equals 0
   assert "${#lines}" equals 2
-  assert "numbers.txt$(cyan :)$(red one)" in "$output"
-  assert "$output" matches 'long_lines.txt.*:.*\.{100}.*one.*'
+  assert "$output" matches '     1	long_lines.txt.*:.*\.{100}.*one.*'
+  assert "     2	numbers.txt$(cyan :)$(red one)" in "$output"
 }
 
 @test 'mg - case insensitive' {
@@ -74,13 +92,13 @@
 
   assert $state equals 0
   assert "${#lines}" equals 7
-  assert "numbers.txt$(cyan :)$(red three)" in "$output"
-  assert "cases.txt$(cyan :)$(red three)" in "$output"
-  assert "cases.txt$(cyan :)$(red Three)" in "$output"
-  assert "cases.txt$(cyan :)$(red tHree)" in "$output"
-  assert "cases.txt$(cyan :)$(red thRee)" in "$output"
-  assert "cases.txt$(cyan :)$(red thrEe)" in "$output"
-  assert "cases.txt$(cyan :)$(red threE)" in "$output"
+  assert "     1	cases.txt$(cyan :)$(red three)" in "$output"
+  assert "     2	cases.txt$(cyan :)$(red Three)" in "$output"
+  assert "     3	cases.txt$(cyan :)$(red tHree)" in "$output"
+  assert "     4	cases.txt$(cyan :)$(red thRee)" in "$output"
+  assert "     5	cases.txt$(cyan :)$(red thrEe)" in "$output"
+  assert "     6	cases.txt$(cyan :)$(red threE)" in "$output"
+  assert "     7	numbers.txt$(cyan :)$(red three)" in "$output"
 }
 
 @test 'mg - smartcase' {
@@ -90,16 +108,46 @@
 
   assert $state equals 0
   assert "${#lines}" equals 1
-  assert "cases.txt$(cyan :)$(red Three)" in "$output"
+  assert "     1	cases.txt$(cyan :)$(red Three)" in "$output"
 }
 
-@test 'mg -c - case sensitive flag' {
+@test 'mg -c - case sensitive' {
   cd fixtures/basic
-  
+
   run mg -c three
 
   assert $state equals 0
   assert "${#lines}" equals 2
-  assert "cases.txt$(cyan :)$(red three)" in "$output"
-  assert "numbers.txt$(cyan :)$(red three)" in "$output"
+  assert "     1	cases.txt$(cyan :)$(red three)" in "$output"
+  assert "     2	numbers.txt$(cyan :)$(red three)" in "$output"
+}
+
+@test 'mg -h - suppress files' {
+  cd fixtures/basic
+
+  run mg -h two
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "$output" same_as "     1	$(red two)"
+}
+
+@test 'mg -l - only file names' {
+  cd fixtures/basic
+
+  run mg -l two
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "$output" same_as "     1	numbers.txt"
+}
+
+@test 'mg -n - suppress numbers' {
+  cd fixtures/basic
+
+  run mg -n two
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "$output" same_as "numbers.txt$(cyan :)$(red two)"
 }
