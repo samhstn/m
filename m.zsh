@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-function usage() {
+function mg_usage() {
   cat << EOF
 usage: mg [-cnhl] <pattern> [-v <exclude pattern>]
     mg -c      case sensitive match of <pattern>
@@ -8,41 +8,80 @@ usage: mg [-cnhl] <pattern> [-v <exclude pattern>]
     mg -h      supress files in output
     mg -l      only show files in output
 EOF
-} 
+}
 
-function mg() {
-  if [[ $# -eq 0 ]];then
-    usage
-    exit 0
-  fi
+function mg_formatted() {
+  ARGS=()
 
-  declare -a ARGS
-  declare case_sensitive="false"
-  declare suppress_files="false"
-  declare no_numbers="false"
+  case_sensitive="false"
+  suppress_files="false"
+  no_numbers="false"
 
   ARGS+=(--untracked) # include untracked in git grep command
   ARGS+=(--color) # color the output in the terminal
 
-  while getopts ":c:h:l:n:" opt; do
+  while getopts ":nchlv:" opt;do
     case ${opt} in
-      c ) case_sensitive="true";shift;;
-      n ) no_numbers="true";shift;;
-      h ) ARGS+=(-h);shift;;
-      l ) ARGS+=(-l);shift;;
-      \? ) usage 1>&2;exit 1;;
+      n ) no_numbers="true";;
+      c ) case_sensitive="true";;
+      h ) ARGS+=(-h);;
+      l ) ARGS+=(-l);;
+      v ) echo "v $OPTARG";;
+      \? ) mg_usage;exit 1;;
     esac
   done
 
-  if [[ $1 =~ [A-Z] ]] || [[ $case_sensitive = "true" ]];then
-    ARGS+=(-E -e $1 --and --not -e '.{200}')
-  else
-    ARGS+=(--ignore-case -E -e $1 --and --not -e '.{200}')
+  shift $(($OPTIND -1))
+
+  if [[ $1 =~ [A-Z] ]];then
+    case_sensitive="true"
   fi
+
+  if [[ $case_sensitive = "false" ]];then
+    ARGS+=(--ignore-case)
+  fi
+
+  ARGS+=(-E -e $1 --and --not -e '.{200}')
 
   if [[ $no_numbers = "true" ]];then
     git grep $ARGS | cat
   else
     git grep $ARGS | cat -n
+  fi
+}
+
+function mg() {
+  if [[ $# -eq 0 ]];then
+    mg_usage
+    exit 0
+  fi
+
+  # if we receive the first argument as many opts prepended by one dash
+  # then we format them as individual opts each prepended by a dash
+  # this allows for easy parsing and consistency in mg_formatted
+
+  while getopts ":n::c::h::l::" opt;do
+    if [ $opt = \? ];then
+      mg_usage
+      exit 1
+    fi
+
+    if [ $OPTIND -eq 2 ];then
+      ARGS=()
+
+      for f in $(grep -o . <<< $(echo $1 | sed 's/-//g'));do
+        ARGS+=(-$f)
+      done
+
+      for a in ${@:2};do
+        ARGS+=($a)
+      done
+    fi
+  done
+
+  if [ $OPTIND -eq 2 ];then
+    mg_formatted $ARGS
+  else
+    mg_formatted $@
   fi
 }
