@@ -27,7 +27,7 @@ function mg_formatted() {
       h ) ARGS+=(-h);;
       l ) ARGS+=(-l);;
       v ) echo "v $OPTARG";;
-      \? ) mg_usage;exit 1;;
+      \? ) mg_usage;return 1;;
     esac
   done
 
@@ -53,7 +53,7 @@ function mg_formatted() {
 function mg() {
   if [[ $# -eq 0 ]];then
     mg_usage
-    exit 0
+    return 0
   fi
 
   # if we receive the first argument as many opts prepended by one dash
@@ -63,7 +63,7 @@ function mg() {
   while getopts ":n::c::h::l::" opt;do
     if [ $opt = \? ];then
       mg_usage
-      exit 1
+      return 1
     fi
 
     if [ $OPTIND -eq 2 ];then
