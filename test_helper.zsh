@@ -1,13 +1,19 @@
 #!/bin/zsh
 
-_called_with=""
+_called_with=()
 
 function m() {
-  _called_with=$1
+  _called_with+=($@)
 }
 
 function m_called_with() {
-  echo $_called_with
+  for arg in $_called_with;do
+    echo $arg
+  done
+}
+
+function m_reset() {
+  _called_with=()
 }
 
 function cyan() {

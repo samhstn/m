@@ -10,6 +10,14 @@ usage: mg [-cnhl] <pattern> [-v <exclude pattern>]
 EOF
 }
 
+function mo_usage() {
+  cat << EOF
+usage: mo [n]
+    mo opens in vim all of the last files returned from mg
+    mo n (where n is an integer) opens in vim the nth mg match
+EOF
+}
+
 function mg_formatted() {
   ARGS=()
   EXCLUDE_PATTERN=()
@@ -35,7 +43,7 @@ function mg_formatted() {
 
   PATTERN=$1
 
-  shift 1
+  shift
 
   while getopts ":v:" opt;do
     case ${opt} in
@@ -98,5 +106,42 @@ function mg() {
     mg_formatted $ARGS
   else
     mg_formatted $@
+  fi
+}
+
+function mo() {
+  # this if statement is needed for testing
+  # as fc doesn't work in zunit
+  if [[ -z $M_HISTORY_TEST ]];then
+    h=$(fc -lnr)
+  else
+    h=$M_HISTORY_TEST
+  fi
+
+  if ! [[ "$h" =~ "^mg " ]];then
+    echo "cannot find recently run mg command"
+    return 1
+  fi
+
+  last_mg_command=$(echo $h | grep -m 1 -E '^mg ')
+
+  # if no args, then open all files from mg
+  if [[ $# -eq 0 ]];then
+    cmd=$(
+      echo $last_mg_command |
+      # if there are no flags, we want to set -nl as flags
+      sed '/^mg [^\-]/s/^mg \(\.*\)/mg -nl \1/' |
+      # if there are flags, we want to append them with -nl
+      sed 's/^mg -\([a-z]*\)\(\.*\)/mg -\1nl\2/'
+    )
+
+    m $(eval $cmd)
+  elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9]+$' ]];then
+    cmd=$(
+      echo $last_mg_command
+    )
+  else
+    mo_usage
+    return 1
   fi
 }
