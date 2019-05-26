@@ -35,7 +35,7 @@ function mg_formatted() {
 
   PATTERN=$1
 
-  shift 1
+  shift
 
   while getopts ":v:" opt;do
     case ${opt} in
@@ -98,5 +98,27 @@ function mg() {
     mg_formatted $ARGS
   else
     mg_formatted $@
+  fi
+}
+
+function mo() {
+  # this if statement is needed for testing
+  # as fc doesn't work in zunit
+  if [[ -z $M_HISTORY_TEST ]];then
+    h=$(fc -lnr)
+  else
+    h=$M_HISTORY_TEST
+  fi
+
+  # if no args, then open all files from mg
+  if [[ $# -eq 0 ]];then
+    cmd=$(
+      echo $h |
+      grep -m 1 -E '^mg ' |
+      sed 's/^mg -\([a-z]*\)\(\.*\)/mg -\1nl\2/' |
+      sed '/^mg [^\-]/s/^mg \(\.*\)/mg -nl \1/'
+    )
+
+    m $(eval $cmd)
   fi
 }

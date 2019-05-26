@@ -1,8 +1,8 @@
 #!/usr/bin/env zunit
 
 @setup {
-  source ./m.zsh
   source ./test_helper.zsh
+  source ./m.zsh
   ROOT_DIR=$(pwd)
   echo "fixtures/gitignored/ignored/*" > .gitignore
 }
@@ -12,6 +12,7 @@
   if [ -f .gitignore ];then
     rm .gitignore
   fi
+  m_reset
 }
 
 @test 'mg - no args: shows usage' {

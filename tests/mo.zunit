@@ -1,0 +1,30 @@
+#!/usr/bin/env zunit
+
+@setup {
+  source ./test_helper.zsh
+  source ./m.zsh
+  ROOT_DIR=$(pwd)
+  echo "fixtures/gitignored/ignored/*" > .gitignore
+}
+
+@teardown {
+  cd $ROOT_DIR
+  if [ -f .gitignore ];then
+    rm .gitignore
+  fi
+}
+
+@test 'mo - no args: opens all files from last mg' {
+  cd fixtures/basic
+
+  M_HISTORY_TEST="mg three"
+
+  mo
+
+  run m_called_with
+
+  assert $state equals 0
+  assert ${#lines} equals 2
+  assert "cases.txt" in "$output"
+  assert "numbers.txt" in "$output"
+}
