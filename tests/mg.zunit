@@ -183,3 +183,19 @@
   assert "${#lines}" equals 1
   assert "$output" same_as "     1	numbers.txt$(cyan :)thir$(red teen)"
 }
+
+@test 'mg works with regex' {
+  cd fixtures/basic
+
+  run mg '^...teen'
+
+  assert "$output" same_as "     1	numbers.txt$(cyan :)$(red fifteen)"
+}
+
+@test 'mg multi words' {
+  cd fixtures/basic
+
+  run mg 'are four'
+
+  assert "$output" same_as "     1	spaces.txt$(cyan :)These $(red 'are four') words."
+}
