@@ -12,6 +12,7 @@ EOF
 
 function mg_formatted() {
   ARGS=()
+  EXCLUDE_PATTERN=()
 
   case_sensitive="false"
   suppress_files="false"
@@ -20,20 +21,30 @@ function mg_formatted() {
   ARGS+=(--untracked) # include untracked in git grep command
   ARGS+=(--color) # color the output in the terminal
 
-  while getopts ":nchlv:" opt;do
+  while getopts ":nchl" opt;do
     case ${opt} in
       n ) no_numbers="true";;
       c ) case_sensitive="true";;
       h ) ARGS+=(-h);;
       l ) ARGS+=(-l);;
-      v ) echo "v $OPTARG";;
       \? ) mg_usage;return 1;;
     esac
   done
 
   shift $(($OPTIND -1))
 
-  if [[ $1 =~ [A-Z] ]];then
+  PATTERN=$1
+
+  shift 1
+
+  while getopts ":v:" opt;do
+    case ${opt} in
+      v ) EXCLUDE_PATTERN+=($OPTARG);;
+      \? ) mg_usage;return 1;;
+    esac
+  done
+
+  if [[ $PATTERN =~ [A-Z] ]];then
     case_sensitive="true"
   fi
 
@@ -41,7 +52,11 @@ function mg_formatted() {
     ARGS+=(--ignore-case)
   fi
 
-  ARGS+=(-E -e $1 --and --not -e '.{200}')
+  ARGS+=(-E -e $PATTERN --and --not -e '.{200}')
+
+  for exclude_pattern in $EXCLUDE_PATTERN;do
+    ARGS+=(--and --not -e $exclude_pattern)
+  done
 
   if [[ $no_numbers = "true" ]];then
     git grep $ARGS | cat

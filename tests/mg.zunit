@@ -173,3 +173,13 @@
   assert "cases.txt$(cyan :)$(red three)" in "$output"
   assert "numbers.txt$(cyan :)$(red three)" in "$output"
 }
+
+@test 'mg pattern -v exclude_patterns - exclude pattern' {
+  cd fixtures/basic
+
+  run mg teen -v four -v fifteen
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "$output" same_as "     1	numbers.txt$(cyan :)thir$(red teen)"
+}
