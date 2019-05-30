@@ -155,8 +155,8 @@ function mo() {
   elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9]+$' ]];then
     local -a outputs
 
-    for arg in $(eval $(ensure_flags $last_mg_command 'nC'));do
-      outputs+=($arg)
+    for arg in $(eval "$(ensure_flags $last_mg_command 'nC')");do
+      outputs+=("$arg")
     done
 
     m $(echo ${outputs[$1]} | sed 's/:.*$//')

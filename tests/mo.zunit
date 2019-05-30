@@ -47,7 +47,7 @@
   assert "numbers.txt" in "$output"
 }
 
-@test 'mo - integer opens nth mg output' {
+@test 'mo 1 - opens 1st mg output 1' {
   cd fixtures/basic
 
   M_HISTORY_TEST=('mg three' 'mg other')
@@ -58,4 +58,43 @@
 
   assert $state equals 0
   assert "$output" same_as "cases.txt"
+}
+
+@test 'mo 1 -opens 1st mg output 2' {
+  cd fixtures/basic
+
+  M_HISTORY_TEST=('mg one' 'mg other')
+
+  mo 1
+
+  run m_called_with
+
+  assert $state equals 0
+  assert "$output" same_as "long_lines.txt"
+}
+
+@test 'mo 2 - opens 2nd mg output 1' {
+  cd fixtures/basic
+
+  M_HISTORY_TEST=('mg three' 'mg other')
+
+  mo 2
+
+  run m_called_with
+
+  assert $state equals 0
+  assert "$output" same_as "cases.txt"
+}
+
+@test 'mo 2 - opens 2nd mg output 2' {
+  cd fixtures/basic
+
+  M_HISTORY_TEST=('mg one' 'mg other')
+
+  mo 2
+
+  run m_called_with
+
+  assert $state equals 0
+  assert "$output" same_as "numbers.txt"
 }
