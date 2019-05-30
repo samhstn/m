@@ -18,6 +18,26 @@ usage: mo [n]
 EOF
 }
 
+# takes a first argument of a string matching the pattern:
+# mg [-cnhl] <pattern> [-v <exclude_pattern>]
+# and a second argument of characters as flags
+# and returns the first command with flags set
+# we keep the output altering flags: -cvl
+# we change the output styling flags: -nh
+function ensure_flags() {
+  local mg arg1 rest flags
+
+  read -r mg arg1 rest <<< $1
+
+  if [[ $arg1 =~ ^[^-] ]];then
+    echo "mg -$2 $arg1${rest:+ $rest}"
+  else
+    eval 'flags=${arg1//[nh'$2']/}$2'
+
+    echo "mg $flags $rest"
+  fi
+}
+
 function mg_formatted() {
   ARGS=()
   EXCLUDE_PATTERN=()
@@ -25,16 +45,17 @@ function mg_formatted() {
   case_sensitive="false"
   suppress_files="false"
   no_numbers="false"
+  no_color="false"
 
   ARGS+=(--untracked) # include untracked in git grep command
-  ARGS+=(--color) # color the output in the terminal
 
-  while getopts ":nchl" opt;do
+  while getopts ":nchlC" opt;do
     case ${opt} in
       n ) no_numbers="true";;
       c ) case_sensitive="true";;
       h ) ARGS+=(-h);;
       l ) ARGS+=(-l);;
+      C ) no_color="true";; # only used internally by mo
       \? ) mg_usage;return 1;;
     esac
   done
@@ -54,6 +75,10 @@ function mg_formatted() {
 
   if [[ $PATTERN =~ [A-Z] ]];then
     case_sensitive="true"
+  fi
+
+  if [[ $no_color = "false" ]];then
+    ARGS+=(--color)
   fi
 
   if [[ $case_sensitive = "false" ]];then
@@ -82,7 +107,6 @@ function mg() {
   # if we receive the first argument as many opts prepended by one dash
   # then we format them as individual opts each prepended by a dash
   # this allows for easy parsing and consistency in mg_formatted
-
   while getopts ":n::c::h::l::" opt;do
     if [ $opt = \? ];then
       mg_usage
@@ -127,19 +151,15 @@ function mo() {
 
   # if no args, then open all files from mg
   if [[ $# -eq 0 ]];then
-    cmd=$(
-      echo $last_mg_command |
-      # if there are no flags, we want to set -nl as flags
-      sed '/^mg [^\-]/s/^mg \(\.*\)/mg -nl \1/' |
-      # if there are flags, we want to append them with -nl
-      sed 's/^mg -\([a-z]*\)\(\.*\)/mg -\1nl\2/'
-    )
-
-    m $(eval $cmd)
+    m $(eval $(ensure_flags $last_mg_command 'nl'))
   elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9]+$' ]];then
-    cmd=$(
-      echo $last_mg_command
-    )
+    local -a outputs
+
+    for arg in $(eval $(ensure_flags $last_mg_command 'nC'));do
+      outputs+=($arg)
+    done
+
+    m $(echo ${outputs[$1]} | sed 's/:.*$//')
   else
     mo_usage
     return 1
