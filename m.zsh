@@ -30,11 +30,11 @@ function ensure_flags() {
   read -r mg arg1 rest <<< $1
 
   if [[ $arg1 =~ ^[^-] ]];then
-    echo "mg -$2 $arg1${rest:+ $rest}"
+    echo "-$2 $arg1${rest:+ $rest}"
   else
     eval 'flags=${arg1//[nh'$2']/}$2'
 
-    echo "mg $flags $rest"
+    echo "$flags $rest"
   fi
 }
 
@@ -151,15 +151,14 @@ function mo() {
 
   # if no args, then open all files from mg
   if [[ $# -eq 0 ]];then
-    m $(eval $(ensure_flags $last_mg_command 'nl'))
+    m $(mg $(ensure_flags $last_mg_command 'nl'))
   elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9]+$' ]];then
-    local -a outputs
-
-    for arg in $(eval "$(ensure_flags $last_mg_command 'nC')");do
-      outputs+=("$arg")
-    done
-
-    m $(echo ${outputs[$1]} | sed 's/:.*$//')
+    m \
+      $(
+        mg $(ensure_flags $last_mg_command 'nC') |
+        sed 's/:.*$//' |
+        sed -n "$1"p
+      )
   else
     mo_usage
     return 1
