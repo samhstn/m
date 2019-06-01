@@ -1,6 +1,10 @@
 #!/bin/zsh
 
-function mg_usage() {
+function m() {
+  mvim -v $@
+}
+
+function _m_mg_usage() {
   cat << EOF
 usage: mg [-cnhl] <pattern> [-v <exclude pattern>]
     mg -c      case sensitive match of <pattern>
@@ -10,7 +14,7 @@ usage: mg [-cnhl] <pattern> [-v <exclude pattern>]
 EOF
 }
 
-function mo_usage() {
+function _m_mo_usage() {
   cat << EOF
 usage: mo [n]
     mo opens in vim all of the last files returned from mg
@@ -25,9 +29,9 @@ EOF
 # we keep the output altering flags: -cvl
 # we change the output styling flags: -nh
 function ensure_flags() {
-  local mg arg1 rest flags
+  local first arg1 rest flags
 
-  read -r mg arg1 rest <<< $1
+  read -r first arg1 rest <<< $1
 
   if [[ $arg1 =~ ^[^-] ]];then
     echo "-$2 $arg1${rest:+ $rest}"
@@ -39,13 +43,13 @@ function ensure_flags() {
 }
 
 function mg_formatted() {
-  ARGS=()
-  EXCLUDE_PATTERN=()
+  local ARGS=()
+  local EXCLUDE_PATTERN=()
 
-  case_sensitive="false"
-  suppress_files="false"
-  no_numbers="false"
-  no_color="false"
+  local case_sensitive="false"
+  local suppress_files="false"
+  local no_numbers="false"
+  local no_color="false"
 
   ARGS+=(--untracked) # include untracked in git grep command
 
@@ -56,7 +60,7 @@ function mg_formatted() {
       h ) ARGS+=(-h);;
       l ) ARGS+=(-l);;
       C ) no_color="true";; # only used internally by mo
-      \? ) mg_usage;return 1;;
+      \? ) _m_mg_usage;return 1;;
     esac
   done
 
@@ -69,7 +73,7 @@ function mg_formatted() {
   while getopts ":v:" opt;do
     case ${opt} in
       v ) EXCLUDE_PATTERN+=($OPTARG);;
-      \? ) mg_usage;return 1;;
+      \? ) _m_mg_usage;return 1;;
     esac
   done
 
@@ -100,7 +104,7 @@ function mg_formatted() {
 
 function mg() {
   if [[ $# -eq 0 ]];then
-    mg_usage
+    _m_mg_usage
     return 0
   fi
 
@@ -109,7 +113,7 @@ function mg() {
   # this allows for easy parsing and consistency in mg_formatted
   while getopts ":n::c::h::l::" opt;do
     if [ $opt = \? ];then
-      mg_usage
+      _m_mg_usage
       return 1
     fi
 
@@ -136,10 +140,10 @@ function mg() {
 function mo() {
   # this if statement is needed for testing
   # as fc doesn't work in zunit
-  if [[ -z $M_HISTORY_TEST ]];then
-    h=$(fc -lnr)
-  else
+  if [ "$M_TEST" = "true" ] && [[ ! -z $M_HISTORY_TEST ]];then
     h=$M_HISTORY_TEST
+  else
+    h=$(fc -lnr)
   fi
 
   if ! [[ "$h" =~ "^mg " ]];then
@@ -160,7 +164,7 @@ function mo() {
         sed -n "$1"p
       )
   else
-    mo_usage
+    _m_mo_usage
     return 1
   fi
 }

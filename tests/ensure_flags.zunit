@@ -2,6 +2,7 @@
 
 @setup {
   source ./m.zsh
+  M_TEST=true
 }
 
 @test 'ensure_flags with no flags' {

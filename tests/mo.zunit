@@ -1,9 +1,10 @@
 #!/usr/bin/env zunit
 
 @setup {
-  source ./test_helper.zsh
   source ./m.zsh
+  source ./test_helper.zsh
   ROOT_DIR=$(pwd)
+  M_TEST=true
   echo "fixtures/gitignored/ignored/*" > .gitignore
 }
 
