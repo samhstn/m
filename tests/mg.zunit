@@ -201,3 +201,11 @@
 
   assert "$output" same_as "     1	spaces.txt$(cyan :)These $(red 'are four') words."
 }
+
+@test 'mg handles directories' {
+  cd fixtures/nested
+
+  run mg hello dir1/dir2
+
+  assert "$output" same_as "     1	dir1/dir2/dir3/hello.txt$(cyan :)dir3$(red 'hello')"
+}
