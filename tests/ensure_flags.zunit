@@ -2,6 +2,7 @@
 
 @setup {
   source ./m.zsh
+  M_TEST=true
 }
 
 @test 'ensure_flags with no flags' {
@@ -9,7 +10,7 @@
   run ensure_flags "$mg_command" 'n'
 
   assert $state equals 0
-  assert "$output" same_as "mg -n pattern"
+  assert "$output" same_as "-n pattern"
 }
 
 @test 'ensure_flags with -n flags' {
@@ -17,7 +18,7 @@
   run ensure_flags "$mg_command" 'n'
 
   assert $state equals 0
-  assert "$output" same_as "mg -n pattern -v exclude_pattern"
+  assert "$output" same_as "-n pattern -v exclude_pattern"
 }
 
 @test 'ensure_flags with -nh flags' {
@@ -25,7 +26,7 @@
   run ensure_flags "$mg_command" 'n'
 
   assert $state equals 0
-  assert "$output" same_as "mg -n pattern -v exclude_pattern"
+  assert "$output" same_as "-n pattern -v exclude_pattern"
 }
 
 @test 'ensure_flags with -nl flags' {
@@ -33,7 +34,7 @@
   run ensure_flags "$mg_command" 'n'
 
   assert $state equals 0
-  assert "$output" same_as "mg -ln pattern"
+  assert "$output" same_as "-ln pattern"
 }
 
 @test 'ensure_flags with -cnhl flags and replace nl' {
@@ -41,5 +42,5 @@
   run ensure_flags "$mg_command" 'nl'
 
   assert $state equals 0
-  assert "$output" same_as "mg -cnl pattern -v exclude_pattern"
+  assert "$output" same_as "-cnl pattern -v exclude_pattern"
 }
