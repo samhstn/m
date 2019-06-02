@@ -50,6 +50,7 @@ function mg_formatted() {
   suppress_files="false"
   no_numbers="false"
   no_color="false"
+  directory=""
 
   ARGS+=(--untracked) # include untracked in git grep command
 
@@ -69,6 +70,11 @@ function mg_formatted() {
   PATTERN=$1
 
   shift
+
+  if [[ $1 != "" ]] && ! [[ $1 =~ ^- ]];then
+    directory=$1
+    shift
+  fi
 
   while getopts ":v:" opt;do
     case ${opt} in
@@ -94,6 +100,10 @@ function mg_formatted() {
   for exclude_pattern in $EXCLUDE_PATTERN;do
     ARGS+=(--and --not -e $exclude_pattern)
   done
+
+  if [[ $directory != "" ]];then
+    ARGS+=(-- $directory)
+  fi
 
   if [[ $no_numbers = "true" ]];then
     git grep $ARGS | cat
