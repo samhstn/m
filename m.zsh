@@ -43,13 +43,13 @@ function ensure_flags() {
 }
 
 function mg_formatted() {
-  local ARGS=()
-  local EXCLUDE_PATTERN=()
+  ARGS=()
+  EXCLUDE_PATTERN=()
 
-  local case_sensitive="false"
-  local suppress_files="false"
-  local no_numbers="false"
-  local no_color="false"
+  case_sensitive="false"
+  suppress_files="false"
+  no_numbers="false"
+  no_color="false"
 
   ARGS+=(--untracked) # include untracked in git grep command
 
