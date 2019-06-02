@@ -16,7 +16,7 @@
 }
 
 @test 'mo - without a previously run mg command' {
-  M_HISTORY_TEST=('ls')
+  M_HISTORY_TEST='ls'
 
   run mo
 
@@ -25,7 +25,7 @@
 }
 
 @test 'mo - non integer first argument displays mo usage' {
-  M_HISTORY_TEST=('mg three')
+  M_HISTORY_TEST='mg three'
   run mo -h
 
   assert $state equals 1
@@ -36,7 +36,7 @@
 @test 'mo - no args: opens all files from last mg' {
   cd fixtures/basic
 
-  M_HISTORY_TEST=('mg three' 'mg other')
+  M_HISTORY_TEST='mg three\nmg other'
 
   mo
 
@@ -51,7 +51,7 @@
 @test 'mo 1 - opens 1st mg output 1' {
   cd fixtures/basic
 
-  M_HISTORY_TEST=('mg three' 'mg other')
+  M_HISTORY_TEST='mg three\nmg other'
 
   mo 1
 
@@ -64,7 +64,7 @@
 @test 'mo 1 -opens 1st mg output 2' {
   cd fixtures/basic
 
-  M_HISTORY_TEST=('mg one' 'mg other')
+  M_HISTORY_TEST='mg one\nmg other'
 
   mo 1
 
@@ -77,7 +77,7 @@
 @test 'mo 2 - opens 2nd mg output 1' {
   cd fixtures/basic
 
-  M_HISTORY_TEST=('mg three' 'mg other')
+  M_HISTORY_TEST='mg three\nmg other'
 
   mo 2
 
@@ -90,7 +90,7 @@
 @test 'mo 2 - opens 2nd mg output 2' {
   cd fixtures/basic
 
-  M_HISTORY_TEST=('mg one' 'mg other')
+  M_HISTORY_TEST='mg one\nmg other'
 
   mo 2
 
