@@ -156,7 +156,7 @@ function mo() {
     h=$(fc -lnr)
   fi
 
-  if ! [[ "$h" =~ "^mg " ]];then
+  if ! echo $h | grep -Eq '^mg ';then
     echo "cannot find recently run mg command"
     return 1
   fi
