@@ -30,7 +30,7 @@
 
   assert $state equals 1
   assert "$output" contains "usage"
-  assert "${#lines}" equals 3
+  assert "${#lines}" equals 4
 }
 
 @test 'mo - no args: opens all files from last mg' {
@@ -58,7 +58,9 @@
   run m_called_with
 
   assert $state equals 0
-  assert "$output" same_as "cases.txt"
+  assert "${#lines}" equals 2
+  assert "${lines[1]}" same_as "cases.txt"
+  assert "${lines[2]}" same_as "+1"
 }
 
 @test 'mo 1 -opens 1st mg output 2' {
@@ -71,7 +73,9 @@
   run m_called_with
 
   assert $state equals 0
-  assert "$output" same_as "long_lines.txt"
+  assert "${#lines}" equals 2
+  assert "${lines[1]}" same_as "long_lines.txt"
+  assert "${lines[2]}" same_as "+1"
 }
 
 @test 'mo 2 - opens 2nd mg output 1' {
@@ -84,7 +88,9 @@
   run m_called_with
 
   assert $state equals 0
-  assert "$output" same_as "cases.txt"
+  assert "${#lines}" equals 2
+  assert "${lines[1]}" same_as "cases.txt"
+  assert "${lines[2]}" same_as "+2"
 }
 
 @test 'mo 2 - opens 2nd mg output 2' {
@@ -97,5 +103,7 @@
   run m_called_with
 
   assert $state equals 0
-  assert "$output" same_as "numbers.txt"
+  assert "${#lines}" equals 2
+  assert "${lines[1]}" same_as "numbers.txt"
+  assert "${lines[2]}" same_as "+1"
 }

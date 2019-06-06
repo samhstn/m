@@ -19,6 +19,7 @@ function _m_mo_usage() {
 usage: mo [n]
     mo opens in vim all of the last files returned from mg
     mo n (where n is an integer) opens in vim the nth mg match
+         and jumps to the correct line
 EOF
 }
 
@@ -50,17 +51,19 @@ function mg_formatted() {
   suppress_files="false"
   no_numbers="false"
   no_color="false"
+  show_lines="false"
   directory=""
 
   ARGS+=(--untracked) # include untracked in git grep command
 
-  while getopts ":nchlC" opt;do
+  while getopts ":nchlCL" opt;do
     case ${opt} in
       n ) no_numbers="true";;
       c ) case_sensitive="true";;
       h ) ARGS+=(-h);;
       l ) ARGS+=(-l);;
       C ) no_color="true";; # only used internally by mo
+      L ) show_lines="true";; # only used internally by mo
       \? ) _m_mg_usage;return 1;;
     esac
   done
@@ -89,6 +92,10 @@ function mg_formatted() {
 
   if [[ $no_color = "false" ]];then
     ARGS+=(--color)
+  fi
+
+  if [[ $show_lines = "true" ]];then
+    ARGS+=(-n)
   fi
 
   if [[ $case_sensitive = "false" ]];then
@@ -121,7 +128,7 @@ function mg() {
   # if we receive the first argument as many opts prepended by one dash
   # then we format them as individual opts each prepended by a dash
   # this allows for easy parsing and consistency in mg_formatted
-  while getopts ":n::c::h::l::" opt;do
+  while getopts ":n::c::h::l::C::L::" opt;do
     if [ $opt = \? ];then
       _m_mg_usage
       return 1
@@ -156,7 +163,7 @@ function mo() {
     h=$(fc -lnr)
   fi
 
-  if ! [[ "$h" =~ "^mg " ]];then
+  if ! echo $h | grep -Eq '^mg ';then
     echo "cannot find recently run mg command"
     return 1
   fi
@@ -167,12 +174,8 @@ function mo() {
   if [[ $# -eq 0 ]];then
     m $(mg $(ensure_flags $last_mg_command 'nl'))
   elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9]+$' ]];then
-    m \
-      $(
-        mg $(ensure_flags $last_mg_command 'nC') |
-        sed 's/:.*$//' |
-        sed -n "$1"p
-      )
+    IFS=':' read -r file line_number _pattern <<< $(mg $(ensure_flags $last_mg_command 'nCL') | sed -n "$1"p)
+    m $file +$line_number
   else
     _m_mo_usage
     return 1
