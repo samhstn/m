@@ -40,9 +40,10 @@
 
   mo
 
+  sleep 0.2
+
   run m_called_with
 
-  assert $state equals 0
   assert ${#lines} equals 2
   assert "cases.txt" in "$output"
   assert "numbers.txt" in "$output"
@@ -55,9 +56,10 @@
 
   mo 1
 
+  sleep 0.2
+
   run m_called_with
 
-  assert $state equals 0
   assert "${#lines}" equals 2
   assert "${lines[1]}" same_as "cases.txt"
   assert "${lines[2]}" same_as "+1"
@@ -70,9 +72,10 @@
 
   mo 1
 
+  sleep 0.2
+
   run m_called_with
 
-  assert $state equals 0
   assert "${#lines}" equals 2
   assert "${lines[1]}" same_as "long_lines.txt"
   assert "${lines[2]}" same_as "+1"
@@ -85,9 +88,10 @@
 
   mo 2
 
+  sleep 0.2
+
   run m_called_with
 
-  assert $state equals 0
   assert "${#lines}" equals 2
   assert "${lines[1]}" same_as "cases.txt"
   assert "${lines[2]}" same_as "+2"
@@ -100,9 +104,10 @@
 
   mo 2
 
+  sleep 0.2
+
   run m_called_with
 
-  assert $state equals 0
   assert "${#lines}" equals 2
   assert "${lines[1]}" same_as "numbers.txt"
   assert "${lines[2]}" same_as "+1"
