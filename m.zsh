@@ -1,7 +1,11 @@
 #!/bin/zsh
 
 function m() {
-  mvim -v $@
+  if [[ $1 =~ ^(a|b)/ ]];then
+    mvim -v $(echo $1 | sed -E 's/^(a|b)\///')
+  else
+    mvim -v $@
+  fi
 }
 
 function _m_mg_usage() {
