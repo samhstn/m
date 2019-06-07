@@ -8,6 +8,31 @@ function m() {
   fi
 }
 
+function mr() {
+  # this if statement is needed for testing
+  # as fc doesn't work in zunit
+  if [ "$M_TEST" = "true" ] && [[ ! -z $M_HISTORY_TEST ]];then
+    h=$M_HISTORY_TEST
+  else
+    h=$(fc -lnr)
+  fi
+
+  if ! echo $h | grep -Eq '^m( |o )';then
+    echo "cannot find recently run m or mo commands"
+    return 1
+  fi
+
+  last_m_or_mo_command=$(echo $h | grep -m 1 -E '^m( |o )')
+
+  read -r marg rest <<< $last_m_or_mo_command
+
+  if echo $h | grep -Eq '^m ';then
+    m $rest
+  else
+    mo $rest
+  fi
+}
+
 function _m_mg_usage() {
   cat << EOF
 usage: mg [-cnhl] <pattern> [-v <exclude pattern>]
