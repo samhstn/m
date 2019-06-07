@@ -1,6 +1,8 @@
 #!/bin/zsh
 
 function m() {
+  # to allow for opening files pasted from
+  # output of git diff
   if [[ $1 =~ ^(a|b)/ ]];then
     mvim -v $(echo $1 | sed -E 's/^(a|b)\///')
   else
