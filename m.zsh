@@ -8,6 +8,20 @@ function m() {
   fi
 }
 
+function ml() {
+  # this if statement is needed for testing
+  # as fc doesn't work in zunit
+  if [ "$M_TEST" = "true" ] && [[ ! -z $M_HISTORY_TEST ]];then
+    h=$M_HISTORY_TEST
+  else
+    h=$(fc -lnr)
+  fi
+
+  read -r first rest <<< $(echo $h | head -1)
+
+  m $rest
+}
+
 function mr() {
   # this if statement is needed for testing
   # as fc doesn't work in zunit
