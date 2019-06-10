@@ -42,7 +42,7 @@ function mr() {
 
   read -r marg rest <<< $last_m_or_mo_command
 
-  if echo $h | grep -Eq '^m ';then
+  if echo $last_m_or_mo_command | grep -Eq '^m ';then
     m $rest
   else
     mo $rest
