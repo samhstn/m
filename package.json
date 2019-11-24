@@ -1,0 +1,23 @@
+{
+  "name": "m",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.org/samhstn/m.svg?branch=master)](https://travis-ci.org/samhstn/m)",
+  "main": "archive.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samhstn/m.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/samhstn/m/issues"
+  },
+  "homepage": "https://github.com/samhstn/m#readme"
+}

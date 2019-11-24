@@ -1,8 +1,10 @@
 #!/bin/zsh
 
 function m() {
+  m_archive put $@
+
   # to allow for opening files pasted from
-  # output of git diff
+  # output of git diff of the form a/filname.ext
   if [[ $1 =~ ^(a|b)/ ]];then
     mvim -v $(echo $1 | sed -E 's/^(a|b)\///')
   else
@@ -13,7 +15,7 @@ function m() {
 function ml() {
   # this if statement is needed for testing
   # as fc doesn't work in zunit
-  if [ "$M_TEST" = "true" ] && [[ ! -z $M_HISTORY_TEST ]];then
+  if [[ ! -z $M_HISTORY_TEST ]];then
     h=$M_HISTORY_TEST
   else
     h=$(fc -lnr)
@@ -25,28 +27,13 @@ function ml() {
 }
 
 function mr() {
-  # this if statement is needed for testing
-  # as fc doesn't work in zunit
-  if [ "$M_TEST" = "true" ] && [[ ! -z $M_HISTORY_TEST ]];then
-    h=$M_HISTORY_TEST
-  else
-    h=$(fc -lnr)
-  fi
+  # TODO: add usage when arguments provided
+  # if [[ $# -ne 0 ]];then
+  #   _m_mr_usage
+  #   return 0
+  # fi
 
-  if ! echo $h | grep -Eq '^m( |o )';then
-    echo "cannot find recently run m or mo commands"
-    return 1
-  fi
-
-  last_m_or_mo_command=$(echo $h | grep -m 1 -E '^m( |o )')
-
-  read -r marg rest <<< $last_m_or_mo_command
-
-  if echo $last_m_or_mo_command | grep -Eq '^m ';then
-    m $rest
-  else
-    mo $rest
-  fi
+  m $(m_archive get)
 }
 
 function _m_mg_usage() {
@@ -88,27 +75,29 @@ function ensure_flags() {
   fi
 }
 
-function mg_formatted() {
+function mg_args() {
   ARGS=()
   EXCLUDE_PATTERN=()
 
-  case_sensitive="false"
-  suppress_files="false"
-  no_numbers="false"
   no_color="false"
   show_lines="false"
+  case_sensitive="false"
+  suppress_files="false"
+  regex="false"
   directory=""
 
-  ARGS+=(--untracked) # include untracked in git grep command
+  # we always want to include untracked in our git grep command
+  ARGS+=(--untracked)
 
-  while getopts ":nchlCL" opt;do
+  while getopts ":chlECLn" opt;do
     case ${opt} in
-      n ) no_numbers="true";;
       c ) case_sensitive="true";;
+      E ) regex="true";;
       h ) ARGS+=(-h);;
       l ) ARGS+=(-l);;
       C ) no_color="true";; # only used internally by mo
       L ) show_lines="true";; # only used internally by mo
+      n ) ;;
       \? ) _m_mg_usage;return 1;;
     esac
   done
@@ -124,15 +113,12 @@ function mg_formatted() {
     shift
   fi
 
-  while getopts ":v:" opt;do
-    case ${opt} in
-      v ) EXCLUDE_PATTERN+=($OPTARG);;
-      \? ) _m_mg_usage;return 1;;
-    esac
-  done
-
   if [[ $PATTERN =~ [A-Z] ]];then
     case_sensitive="true"
+  fi
+
+  if [[ $case_sensitive = "false" ]];then
+    ARGS+=(--ignore-case)
   fi
 
   if [[ $no_color = "false" ]];then
@@ -143,42 +129,60 @@ function mg_formatted() {
     ARGS+=(-n)
   fi
 
-  if [[ $case_sensitive = "false" ]];then
-    ARGS+=(--ignore-case)
+  if [[ $regex = "true" ]];then
+    ARGS+=(-E)
   fi
 
-  ARGS+=(-E -e $PATTERN --and --not -e '.{200}')
-
-  for exclude_pattern in $EXCLUDE_PATTERN;do
-    ARGS+=(--and --not -e $exclude_pattern)
-  done
+  ARGS+=($PATTERN)
 
   if [[ $directory != "" ]];then
     ARGS+=(-- $directory)
   fi
 
-  if [[ $no_numbers = "true" ]];then
-    git grep $ARGS | cat
+  echo $ARGS
+}
+
+function mg_excludes() {
+  append="false"
+  EXCLUDES=()
+
+  for arg in $@;do
+    if [[ $append = "true" ]];then
+      EXCLUDES+=$arg
+    fi
+
+    if [[ $arg == "-v" ]];then
+      append="true"
+    fi
+  done
+
+  str=""
+  if [ "${#EXCLUDES[@]}" -gt 1 ];then
+    str="($str"
+    for exc in $EXCLUDES;do
+      str="$str$exc|"
+    done
+    str=$(echo $str | sed 's/\|$//')
+    str="$str)"
   else
-    git grep $ARGS | cat -n
+    str="${EXCLUDES[1]}"
   fi
+
+  echo $str
 }
 
 function mg() {
+  excludes="false"
+
   if [[ $# -eq 0 ]];then
     _m_mg_usage
     return 0
   fi
 
-  # if we receive the first argument as many opts prepended by one dash
-  # then we format them as individual opts each prepended by a dash
-  # this allows for easy parsing and consistency in mg_formatted
-  while getopts ":n::c::h::l::C::L::" opt;do
-    if [ $opt = \? ];then
-      _m_mg_usage
-      return 1
-    fi
-
+  while getopts ":n::E::c::h::l::C::L::v:" opt;do
+    # if we receive $1 as many opts prepended by one dash
+    # then we format them as individual opts each prepended by a dash
+    # this allows for easy parsing and consistency in mg_formatted
     if [ $OPTIND -eq 2 ];then
       ARGS=()
 
@@ -190,37 +194,47 @@ function mg() {
         ARGS+=($a)
       done
     fi
+
+    case ${opt} in
+      v ) excludes="true";;
+      \? ) _m_mg_usage;return 1;;
+    esac
   done
 
   if [ $OPTIND -eq 2 ];then
-    mg_formatted $ARGS
+    mg_archive $(git grep $(mg_args $(ensure_flags $ARGS 'nCL')) | grep -Ev $(mg_excludes $@))
+
+    # See: https://stackoverflow.com/a/15394738/4699289
+    # if -n flag, then suppress numbers in output
+    if [[ " ${ARGS[@]} " =~ " ${-n} " ]];then
+      if [[ excludes = "true" ]];then
+        git grep $(mg_args $ARGS) | grep -Ev $(mg_excludes $@)
+      else
+        git grep $(mg_args $ARGS)
+      fi
+    else
+      if [[ excludes = "true" ]];then
+        git grep $(mg_args $ARGS) | grep -Ev $(mg_excludes $@) | cat -n
+      else
+        git grep $(mg_args $ARGS) | cat -n
+      fi
+    fi
   else
-    mg_formatted $@
+    mg_archive $(git grep $(mg_args $(ensure_flags $ARGS 'nCL')) | grep -Ev $(mg_excludes $@))
+
+    if [[ excludes = "true" ]];then
+      git grep $(mg_args $@) | grep -Ev $(mg_excludes $@)
+    else
+      git grep $(mg_args $@)
+    fi
   fi
 }
 
 function mo() {
-  # this if statement is needed for testing
-  # as fc doesn't work in zunit
-  if [ "$M_TEST" = "true" ] && [[ ! -z $M_HISTORY_TEST ]];then
-    h=$M_HISTORY_TEST
-  else
-    h=$(fc -lnr)
-  fi
-
-  if ! echo $h | grep -Eq '^mg ';then
-    echo "cannot find recently run mg command"
-    return 1
-  fi
-
-  last_mg_command=$(echo $h | grep -m 1 -E '^mg ')
-
-  # if no args, then open all files from mg
   if [[ $# -eq 0 ]];then
-    m $(mg $(ensure_flags $last_mg_command 'nl'))
+    m $(mg_archive get all)
   elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9]+$' ]];then
-    IFS=':' read -r file line_number _pattern <<< $(mg $(ensure_flags $last_mg_command 'nCL') | sed -n "$1"p)
-    m $file +$line_number
+    m $(mg_archive get $1)
   else
     _m_mo_usage
     return 1

@@ -3,18 +3,27 @@
 @setup {
   source ./m.zsh
   source ./test_helper.zsh
-  M_TEST=true
+  m_reset
 }
 
-@test 'ml' {
+@test 'ml single last arg' {
   M_HISTORY_TEST='cat README.md'
 
   ml
-
-  sleep 0.2
 
   run m_called_with
 
   assert ${#lines} equals 1
   assert ${lines[1]} same_as "README.md"
+}
+
+@test 'ml multiple last args' {
+  M_HISTORY_TEST='cat README.md DOCS.md'
+
+  ml
+
+  run m_called_with
+
+  assert ${#lines} equals 1
+  assert ${lines[1]} same_as "README.md DOCS.md"
 }
