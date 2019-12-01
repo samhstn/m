@@ -6,41 +6,49 @@
 }
 
 @test 'ensure_flags with no flags' {
-  mg_command='mg pattern'
-  run ensure_flags "$mg_command" 'n'
+  ARGS=(pattern)
+  run ensure_flags $ARGS
 
   assert $state equals 0
-  assert "$output" same_as "-n pattern"
+  assert "$output" same_as "-n -C -L pattern"
 }
 
-@test 'ensure_flags with -n flags' {
-  mg_command='mg -n pattern -v exclude_pattern'
-  run ensure_flags "$mg_command" 'n'
-
-  assert $state equals 0
-  assert "$output" same_as "-n pattern -v exclude_pattern"
-}
-
-@test 'ensure_flags with -nh flags' {
-  mg_command='mg -nh pattern -v exclude_pattern'
-  run ensure_flags "$mg_command" 'n'
-
-  assert $state equals 0
-  assert "$output" same_as "-n pattern -v exclude_pattern"
-}
-
-@test 'ensure_flags with -nl flags' {
-  mg_command='mg -nl pattern'
-  run ensure_flags "$mg_command" 'n'
-
-  assert $state equals 0
-  assert "$output" same_as "-ln pattern"
-}
-
-@test 'ensure_flags with -cnhl flags and replace nl' {
-  mg_command='mg -cnhl pattern -v exclude_pattern'
-  run ensure_flags "$mg_command" 'nl'
-
-  assert $state equals 0
-  assert "$output" same_as "-cnl pattern -v exclude_pattern"
-}
+# @test 'ensure_flags with no flags' {
+#   mg_command='mg pattern'
+#   run ensure_flags "$mg_command" 'n'
+# 
+#   assert $state equals 0
+#   assert "$output" same_as "-n pattern"
+# }
+# 
+# @test 'ensure_flags with -n flags' {
+#   mg_command='mg -n pattern -v exclude_pattern'
+#   run ensure_flags "$mg_command" 'n'
+# 
+#   assert $state equals 0
+#   assert "$output" same_as "-n pattern -v exclude_pattern"
+# }
+# 
+# @test 'ensure_flags with -nh flags' {
+#   mg_command='mg -nh pattern -v exclude_pattern'
+#   run ensure_flags "$mg_command" 'n'
+# 
+#   assert $state equals 0
+#   assert "$output" same_as "-n pattern -v exclude_pattern"
+# }
+# 
+# @test 'ensure_flags with -nl flags' {
+#   mg_command='mg -nl pattern'
+#   run ensure_flags "$mg_command" 'n'
+# 
+#   assert $state equals 0
+#   assert "$output" same_as "-ln pattern"
+# }
+# 
+# @test 'ensure_flags with -cnhl flags and replace nl' {
+#   mg_command='mg -cnhl pattern -v exclude_pattern'
+#   run ensure_flags "$mg_command" 'nl'
+# 
+#   assert $state equals 0
+#   assert "$output" same_as "-cnl pattern -v exclude_pattern"
+# }

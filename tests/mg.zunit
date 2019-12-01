@@ -94,6 +94,13 @@
   assert "$output" same_as "--untracked --ignore-case one two three"
 }
 
+@test 'mg - characters' {
+  run mg_args 'one-two'
+
+  assert $state equals 0
+  assert "$output" same_as "--untracked --ignore-case one-two"
+}
+
 @test 'mg handles directories' {
   run mg_args hello dir1/dir2
 

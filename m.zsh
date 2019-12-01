@@ -1,5 +1,13 @@
 #!/bin/zsh
 
+function mg_archive() {
+  ./archive.js mg $@
+}
+
+function m_archive() {
+  ./archive.js m $@
+}
+
 function m() {
   m_archive put $@
 
@@ -55,9 +63,7 @@ usage: mo [n]
 EOF
 }
 
-# takes a first argument of a string matching the pattern:
-# mg [-cnhl] <pattern> [-v <exclude_pattern>]
-# and a second argument of characters as flags
+# takes a first argument of an array of args passed to mg
 # and returns the first command with flags set
 # we keep the output altering flags: -cvl
 # we change the output styling flags: -nh
@@ -121,8 +127,8 @@ function mg_args() {
     ARGS+=(--ignore-case)
   fi
 
-  if [[ $no_color = "false" ]];then
-    ARGS+=(--color)
+  if [[ $no_color = "true" ]];then
+    ARGS+=(--no-color)
   fi
 
   if [[ $show_lines = "true" ]];then
@@ -171,6 +177,8 @@ function mg_excludes() {
   echo $str
 }
 
+# wrapper around git-grep which records each run to be used
+# in conjuction with mo command.
 function mg() {
   excludes="false"
 
@@ -201,10 +209,12 @@ function mg() {
     esac
   done
 
+  # see above for this if condition
   if [ $OPTIND -eq 2 ];then
-    mg_archive $(git grep $(mg_args $(ensure_flags $ARGS 'nCL')) | grep -Ev $(mg_excludes $@))
+    # mg_archive $(git grep $(mg_args $(ensure_flags $ARGS)) | grep -Ev $(mg_excludes $@))
 
     # See: https://stackoverflow.com/a/15394738/4699289
+    # for how to check if list contains some string
     # if -n flag, then suppress numbers in output
     if [[ " ${ARGS[@]} " =~ " ${-n} " ]];then
       if [[ excludes = "true" ]];then
@@ -220,7 +230,7 @@ function mg() {
       fi
     fi
   else
-    mg_archive $(git grep $(mg_args $(ensure_flags $ARGS 'nCL')) | grep -Ev $(mg_excludes $@))
+    # mg_archive $(git grep $(mg_args $(ensure_flags $ARGS 'nCL')) | grep -Ev $(mg_excludes $@))
 
     if [[ excludes = "true" ]];then
       git grep $(mg_args $@) | grep -Ev $(mg_excludes $@)
