@@ -15,3 +15,4 @@ before_script:
   - chmod u+x .bin/{color,revolver,zunit}
   - export PATH="$PWD/.bin:$PATH"
 script: zunit && npm test
+cache: npm

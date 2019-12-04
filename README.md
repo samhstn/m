@@ -39,14 +39,45 @@ plugins=(
 )
 ```
 
+We will also need to add the environment variable:
+
+```zsh
+export M_PATH=$HOME/proj/m
+```
+
+To keep up to date, we should clone the repo and add a symlink to our plugin path:
+
+```bash
+# clone the repo
+git clone git@github.com:samhstn/m.git && cd m
+
+# create the plugin directory
+md ~/.oh-my-zsh/plugins/m
+
+# add the symlink
+ln -s $(pwd)/m.zsh $HOME/.oh-my-zsh/plugins/m/m.plugin.zsh
+```
+
 # Running the tests locally
 
 Ensure you have [`zunit`](https://github.com/zunit-zsh/zunit) installed.
 
-Then run the tests:
+Run the `zsh` tests:
 
 ```bash
 zunit
+```
+
+Install our `node` dependencies:
+
+```bash
+npm install
+```
+
+Run the `node` tests:
+
+```bash
+npm test
 ```
 
 For development, if you have [`nodemon`](https://github.com/remy/nodemon) installed, a nice tdd setup
@@ -54,5 +85,12 @@ For development, if you have [`nodemon`](https://github.com/remy/nodemon) instal
 is to develop in one terminal window and watch the tests in another window by running the command:
 
 ```bash
-nodemon -w tests -w m.zsh -e zunit,zsh -x 'zunit'
+# watch zunit tests
+nodemon -w tests/zunit -w m.zsh -e zunit,zsh -x 'zunit'
+
+# watch node tests
+nodemon -x 'npm test'
+
+# watch all tests
+nodemon -e zunit,zsh,js -x 'zunit && npm test'
 ```

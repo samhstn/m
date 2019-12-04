@@ -1,13 +1,10 @@
 {
   "name": "m",
   "version": "1.0.0",
-  "description": "[![Build Status](https://travis-ci.org/samhstn/m.svg?branch=master)](https://travis-ci.org/samhstn/m)",
-  "main": "archive.js",
-  "directories": {
-    "test": "tests"
-  },
+  "description": "A zsh command line utility when using your terminal and `vim` as your ide",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_ENV=test tape ./tests/node/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/samhstn/m/issues"
   },
-  "homepage": "https://github.com/samhstn/m#readme"
+  "homepage": "https://github.com/samhstn/m#readme",
+  "devDependencies": {
+    "tape": "^4.11.0"
+  },
+  "dependencies": {
+    "chalk": "^3.0.0"
+  }
 }

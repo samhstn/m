@@ -1,2 +1,5 @@
 node_modules
-.archive
+.archive/*
+!.archive/.keep
+.test_archive/*
+!.test_archive/.keep
