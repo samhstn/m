@@ -1,0 +1,91 @@
+#!/usr/bin/env zunit
+
+@setup {
+  ROOT_DIR=$PWD
+  source ./m.zsh
+  cd fixtures
+}
+
+@teardown {
+  cd $ROOT_DIR
+}
+
+@test 'mg - unknown search' {
+  run mg unknown
+
+  assert $state equals 0
+  assert "$output" contains "No results 😥"
+  assert "${#lines}" equals 1
+}
+
+@test 'mg - simple number' {
+  run mg twenty
+
+  assert $state equals 0
+  assert "${#lines}" equals 9
+  assert "     1	numbers.txt:twenty-one" in "$output"
+  assert "     2	numbers.txt:twenty-two" in "$output"
+  assert "     3	numbers.txt:twenty-three" in "$output"
+  assert "     4	numbers.txt:twenty-four" in "$output"
+  assert "     5	numbers.txt:twenty-five" in "$output"
+  assert "     6	numbers.txt:twenty-six" in "$output"
+  assert "     7	numbers.txt:twenty-seven" in "$output"
+  assert "     8	numbers.txt:twenty-eight" in "$output"
+  assert "     9	numbers.txt:twenty-nine" in "$output"
+}
+
+@test 'mg - with dashes' {
+  run mg twenty-
+
+  assert $state equals 0
+  assert "${#lines}" equals 9
+  assert "     1	numbers.txt:twenty-one" in "$output"
+  assert "     2	numbers.txt:twenty-two" in "$output"
+  assert "     3	numbers.txt:twenty-three" in "$output"
+  assert "     4	numbers.txt:twenty-four" in "$output"
+  assert "     5	numbers.txt:twenty-five" in "$output"
+  assert "     6	numbers.txt:twenty-six" in "$output"
+  assert "     7	numbers.txt:twenty-seven" in "$output"
+  assert "     8	numbers.txt:twenty-eight" in "$output"
+  assert "     9	numbers.txt:twenty-nine" in "$output"
+}
+
+@test 'mg - <!-- string' {
+  run mg '<!--'
+  
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "     1	wierd.txt:<!-- hi -->" in "$output"
+}
+
+@test 'mg - **/f' {
+  run mg '**/f'
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "     1	wierd.txt:dir/**/file.*" in "$output"
+}
+
+@test 'mg - hello(' {
+  run mg 'hello('
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "     1	wierd.txt:def hello(arg), do: hi" in "$output"
+}
+
+@test 'mg - ....' {
+  run mg '....'
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "     1	wierd.txt:....." in "$output"
+}
+
+@test 'mg - `${' {
+  run mg '`${'
+
+  assert $state equals 0
+  assert "${#lines}" equals 1
+  assert "     1	wierd.txt:\`\${thing}\`" in "$output"
+}
