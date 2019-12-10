@@ -19,7 +19,16 @@ if (args[0] === 'm') {
 
 if (args[0] === 'mg') {
   if (args[1] === 'put') {
-    MgArchive.put(args.slice(2, args.length));
+    MgArchive
+      .put(args.slice(2, args.length))
+      .catch((err) => {
+        if (err === '') {
+          console.log('No results 😥');
+        } else {
+          throw err
+        }
+      });
+
     return;
   }
 
