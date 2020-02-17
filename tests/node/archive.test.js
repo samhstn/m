@@ -12,10 +12,10 @@ async function removeFileIfExists(file) {
   } catch (_e) {}
 }
 
-test('MArchive.put :: writes to $M_ARCHIVE_DIR/m_archive.json', async (t) => {
+test('MArchive.writeJson :: writes to $M_ARCHIVE_DIR/m_archive.json', async (t) => {
   await removeFileIfExists(mArchiveFile);
 
-  await MArchive.put(['hello', 'world']);
+  await MArchive.writeJson(['hello', 'world']);
 
   const archive = await fsPromises.readFile(mArchiveFile);
 
@@ -23,19 +23,19 @@ test('MArchive.put :: writes to $M_ARCHIVE_DIR/m_archive.json', async (t) => {
   t.end();
 });
 
-test('MArchive.get :: reads from $M_ARCHIVE_DIR/m_archive.json', async (t) => {
+test('MArchive.readJson :: reads from $M_ARCHIVE_DIR/m_archive.json', async (t) => {
   await fsPromises.writeFile(mArchiveFile, JSON.stringify(['hello', 'world']));
 
-  MArchive.get((archive) => {
+  MArchive.readJson((archive) => {
     t.equal(archive, 'hello world');
     t.end();
   });
 });
 
-test('MgArchive.put :: writes to $M_ARCHIVE_DIR/mg_archive.json with childProcess.exec output', async (t) => {
+test('MgArchive.writeJson :: writes to $M_ARCHIVE_DIR/mg_archive.json with childProcess.exec output', async (t) => {
   await removeFileIfExists(mgArchiveFile);
 
-  await MgArchive.put(['hello'])
+  await MgArchive.writeJson(['hello'])
 
   const archive = await fsPromises.readFile(mgArchiveFile);
   const actual = JSON.parse(archive);
@@ -59,7 +59,7 @@ test('MgArchive.put :: writes to $M_ARCHIVE_DIR/mg_archive.json with childProces
   t.end();
 });
 
-test('MgArchive.get :: gets from $M_ARCHIVE_DIR/mg_archive.json', async (t) => {
+test('MgArchive.readJson :: reads from $M_ARCHIVE_DIR/mg_archive.json', async (t) => {
   let actual, expected;
   const json = [
     {
@@ -82,12 +82,12 @@ test('MgArchive.get :: gets from $M_ARCHIVE_DIR/mg_archive.json', async (t) => {
 
   await fsPromises.writeFile(mgArchiveFile, JSON.stringify(json));
 
-  MgArchive.get('all', (actual) => {
+  MgArchive.readJson('all', (actual) => {
     expected = '.test_archive/m_archive.json .test_archive/mg_archive.json file.txt';
 
     t.equal(actual, expected);
 
-    MgArchive.get('2', (actual) => {
+    MgArchive.readJson('2', (actual) => {
       expected = '.test_archive/m_archive.json +5';
 
       t.equal(actual, expected);

@@ -9,7 +9,7 @@ function m_archive() {
 }
 
 function m() {
-  m_archive put $@
+  m_archive write $@
 
   # to allow for opening files pasted from
   # output of git diff of the form a/filename.ext
@@ -41,7 +41,7 @@ function mr() {
     return 1
   fi
 
-  m $(m_archive get)
+  m $(m_archive 'read')
 }
 
 function _mr_usage() {
@@ -83,16 +83,16 @@ function mg() {
     fi
   done
 
-  mg_archive put $@
+  mg_archive write $@
 
   $M_PATH/mg.js $@
 }
 
 function mo() {
   if [[ $# -eq 0 ]];then
-    m $(mg_archive get all)
+    m $(mg_archive 'read' all)
   elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9,]+$' ]];then
-    m $(mg_archive get $1)
+    m $(mg_archive 'read' $1)
   else
     _mo_usage
     return 1
