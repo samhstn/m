@@ -6,11 +6,14 @@ const fsPromises = require('fs').promises;
 const { mArchiveFile, mgArchiveFile } = require('../../config.js');
 const { MArchive, MgArchive } = require('../../lib/archive.js');
 
-test('MArchive.put :: writes to $M_ARCHIVE_DIR/m_archive.json', async (t) => {
+async function removeFileIfExists(file) {
   try {
-    // remove file
-    await fsPromises.unlink(mArchiveFile);
-  } catch (e) {}
+    await fsPromises.unlink(file);
+  } catch (_e) {}
+}
+
+test('MArchive.put :: writes to $M_ARCHIVE_DIR/m_archive.json', async (t) => {
+  await removeFileIfExists(mArchiveFile);
 
   await MArchive.put(['hello', 'world']);
 
@@ -30,10 +33,7 @@ test('MArchive.get :: reads from $M_ARCHIVE_DIR/m_archive.json', async (t) => {
 });
 
 test('MgArchive.put :: writes to $M_ARCHIVE_DIR/mg_archive.json with childProcess.exec output', async (t) => {
-  try {
-    // remove file
-    await fsPromises.unlink(mgArchiveFile);
-  } catch (e) {}
+  await removeFileIfExists(mgArchiveFile);
 
   await MgArchive.put(['hello'])
 
