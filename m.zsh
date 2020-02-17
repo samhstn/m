@@ -12,7 +12,7 @@ function m() {
   m_archive put $@
 
   # to allow for opening files pasted from
-  # output of git diff of the form a/filname.ext
+  # output of git diff of the form a/filename.ext
   if [[ $1 =~ ^(a|b)/ ]];then
     mvim -v $(echo $1 | sed -E 's/^(a|b)\///')
   else
@@ -21,11 +21,12 @@ function m() {
 }
 
 function ml() {
-  # this if statement is needed for testing
-  # as fc doesn't work in zunit
+  # if statement needed for testing as fc doesn't work in zunit
   if [[ ! -z $M_HISTORY_TEST ]];then
     h=$M_HISTORY_TEST
   else
+    # For info on fc, see:
+    # $ man bash | less '+/^ *fc'
     h=$(fc -lnr)
   fi
 
