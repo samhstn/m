@@ -1,0 +1,35 @@
+#!/usr/bin/env zunit
+
+@setup {
+  source ./m.zsh
+}
+
+@test 'mg - no args: shows usage' {
+  run mg
+
+  assert $state equals 0
+  assert "$output" contains "usage"
+  assert "${#lines}" equals 6
+}
+
+@test 'mg - invalid flag: shows usage' {
+  run mg -z asdf
+
+  assert $state equals 1
+  assert "$output" contains "usage"
+  assert "${#lines}" equals 6
+}
+
+@test 'mg - valid flag: exits with 0' {
+  run mg -n asdf
+
+  assert $state equals 0
+}
+
+@test 'mr - with args: shows usage' {
+  run mr asdf
+
+  assert $state equals 1
+  assert "$output" contains "usage"
+  assert "${#lines}" equals 1
+}
