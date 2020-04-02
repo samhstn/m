@@ -1,0 +1,5 @@
+<!-- hi -->
+dir/**/file.*
+def hello(arg), do: hi
+.....
+`${thing}`

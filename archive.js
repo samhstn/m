@@ -15,7 +15,8 @@ if (args[0] === 'm') {
   }
 } else if (args[0] === 'mg') {
   if (args[1] === 'write') {
-    MgArchive.writeJson(args.slice(2, args.length));
+    MgArchive.writeJson(args.slice(2, args.length))
+      .catch((_err) => {});
     return;
   } else if (args[1] === 'read' && args.length === 3) {
     if (args[2] === 'all') {
