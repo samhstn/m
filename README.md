@@ -21,7 +21,7 @@ ml
 mr
 ```
 
-# Intallation
+# Installation
 
 To set this up as a `zsh` plugin, simply run the following command:
 
