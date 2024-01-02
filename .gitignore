@@ -1,5 +1,0 @@
-node_modules
-.archive/*
-!.archive/.keep
-.test_archive/*
-!.test_archive/.keep

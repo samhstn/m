@@ -1,49 +1,5 @@
 #!/bin/zsh
 
-function mg_archive() {
-  $M_PATH/archive.js mg $@
-}
-
-function m_archive() {
-  $M_PATH/archive.js m $@
-}
-
-function m() {
-  m_archive write $@
-
-  # to allow for opening files pasted from
-  # output of git diff of the form a/filename.ext
-  if [[ $1 =~ ^(a|b)/ ]];then
-    mvim -v $(echo $1 | sed -E 's/^(a|b)\///')
-  else
-    mvim -v $@
-  fi
-}
-
-function ml() {
-  # if statement needed for testing as fc doesn't work in zunit
-  if [[ ! -z $M_HISTORY_TEST ]];then
-    h=$M_HISTORY_TEST
-  else
-    # For info on fc, see:
-    # $ man bash | less '+/^ *fc'
-    h=$(fc -lnr)
-  fi
-
-  read -r first rest <<< $(echo $h | head -1)
-
-  m $rest
-}
-
-function mr() {
-  if [[ $# -ne 0 ]];then
-    _mr_usage
-    return 1
-  fi
-
-  m $(m_archive 'read')
-}
-
 function _mr_usage() {
   cat << EOF
 usage: re-runs the last m or mo command which opened an file in vim
@@ -52,11 +8,9 @@ EOF
 
 function _mg_usage() {
   cat << EOF
-usage: mg [-cnhlE] <pattern> [-v <exclude pattern>]
+usage: mg [-clE] <pattern> [<directory 1> <directory 2> ...]
     mg -E      regex search for <pattern>
     mg -c      case sensitive match of <pattern>
-    mg -n      supress numbers in output
-    mg -h      supress files in output
     mg -l      only show files in output
 EOF
 }
@@ -70,31 +24,65 @@ usage: mo [n]
 EOF
 }
 
+function _mf_usage() {
+  cat << EOF
+usage: mf <filename> [<directory 1> <directory 2> ...]
+EOF
+}
+
+function run_m() {
+  deno run --allow-env --allow-read --allow-run --allow-write $M_PATH_V2/m.ts $@
+}
+
+function m() {
+  nvim $(run_m m $@)
+}
+
 function mg() {
   if [[ $# -eq 0 ]];then
     _mg_usage
-    return 0
+    return 1
   fi
 
-  while getopts ":chlEn" opt;do
+  while getopts ":clE" opt;do
     if [[ $opt == "?" ]];then
       _mg_usage
       return 1
     fi
   done
 
-  mg_archive write $@
-
-  $M_PATH/mg.js $@
+  run_m mg $@
 }
 
 function mo() {
-  if [[ $# -eq 0 ]];then
-    m $(mg_archive 'read' all)
-  elif [[ $# -eq 1 ]] && [[ $1 =~ '^[0-9,]+$' ]];then
-    m $(mg_archive 'read' $1)
+  if [[ $# -eq 0 ]] || ([[ $# -eq 1 ]] && [[ $1 =~ '^[0-9,]+$' ]]); then
+    nvim $(run_m mo $@)
   else
     _mo_usage
     return 1
   fi
+}
+
+function mr() {
+  if [[ $# -ne 0 ]];then
+    _mr_usage
+    return 1
+  fi
+
+  nvim $(run_m mr)
+}
+
+function mf() {
+  if [[ $# -eq 0 ]];then
+    _mf_usage
+    return 1
+  fi
+
+  run_m mf $@
+}
+
+function ml() {
+  read -r first rest <<< $(fc -lnr | head -1)
+
+  m $rest
 }

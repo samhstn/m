@@ -1,0 +1,13 @@
+name: Code Cleanliness
+on: pull_request
+jobs:
+  deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: 1.38
+      - run: deno lint m.ts tests lib
+      - run: deno test
