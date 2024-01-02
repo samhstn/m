@@ -13,7 +13,7 @@ type Submatch = {
 }
 
 export const formatLine = (line: Line, index: number) => {
-  if (!line.match) {
+  if (!line.match || !line.submatches) {
     return `  ${index + 1}\t${line.file}`
   }
   let match = ''
