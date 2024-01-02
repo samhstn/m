@@ -1,7 +1,18 @@
 const reset = '\x1b[0m'
 const gold = '\x1b[38;5;136m'
 
-export const formatLine = (line: any, index: number) => {
+type Line = {
+  match?: string
+  submatches?: Submatch[]
+  file: string
+}
+
+type Submatch = {
+  start: number
+  end: number
+}
+
+export const formatLine = (line: Line, index: number) => {
   if (!line.match) {
     return `  ${index + 1}\t${line.file}`
   }
