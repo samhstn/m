@@ -31,7 +31,7 @@ EOF
 }
 
 function run_m() {
-  deno run --allow-env --allow-read --allow-run --allow-write $M_PATH_V2/m.ts $@
+  deno run --allow-env --allow-read --allow-run --allow-write $M_PATH/m.ts $@
 }
 
 function m() {
