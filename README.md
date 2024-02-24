@@ -44,7 +44,7 @@ echo '[]' > $HOME/.m-archive/mr.json
 echo '[]' > $HOME/.m-archive/mo.json
 
 # add an `M_PATH` environment var to your `.zshrc`
-ech "export M_PATH=$HOME/Projects/m" >> ~/.zshrc
+echo "export M_PATH=$HOME/Projects/m" >> ~/.zshrc
 
 # add tool to your .zshrc so it runs on start up
 echo "source $(pwd)/m.zsh" >> ~/.zshrc
